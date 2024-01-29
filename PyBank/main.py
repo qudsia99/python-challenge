@@ -38,7 +38,7 @@ with open(csvpath, 'r', encoding='UTF-8') as csvfile:
         netvalue += int(row[1])
 
          #Tracking the net change
-        net_change = int(row[1]) - prev_net
+        net_change = int(row[1]) - prev_net 
         prev_net = int(row[1])
         net_change_list += [net_change]
         month_of_change += [row[0]]
@@ -57,12 +57,12 @@ with open(csvpath, 'r', encoding='UTF-8') as csvfile:
         #counting all months placed in index = [0] as in each row there is 1 month, then adding it to the variable 'totalmonths'
     print("There are a total of " + str(len(totalmonths)) + " months")
     print("The net Profit/loss is: $" + str(netvalue) + " over the entire period")
-    print("Max Profit: " + str(maxprofit))
-    print("Min Profit: " + str(minprofit))
+    print(f'Max Profit: {str(maxprofit).strip("[]")}')
+    print(f'Min Profit: {str(minprofit).strip("[]")}')
            
     # Calculate the Average Net Change
-    net_monthly_avg = sum(net_change_list) / len(totalmonths)
-    print("The monthly avg. " + str(net_monthly_avg))
+    net_monthly_avg = sum(net_change_list) / (len(totalmonths) - 1)
+    print("The monthly avg: $" + str(net_monthly_avg))
 
 
 
@@ -81,8 +81,7 @@ with open(bank_output_file,"w", newline='') as bankresults:
     csvwriter.writerow(["Total Months","Net Total of Profit/Loss ", "Average Profit/Loss","Max Profit","Min Profit"])
 
     #write row values
-    csvwriter.writerows([[str(len(totalmonths))], [str(netvalue)], [str(net_monthly_avg)],[str(maxprofit)],[str(minprofit)]])
-    
+    csvwriter.writerow([len(totalmonths), netvalue, net_monthly_avg, maxprofit, minprofit])
 
 
 

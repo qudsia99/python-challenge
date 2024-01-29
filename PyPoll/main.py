@@ -1,72 +1,54 @@
-#import modules
-
 import os
 import csv
 
-#Create all proper variables to store info
+# Initialize variables
+candidate_dict = {}  # Dictionary to store candidate information
+totalvotes = 0  # Total number of votes cast
 
+# Create data file path
+csvpath = os.path.join("PyPoll", "Resources", "election_data.csv")
 
-candidate_dict = {} #Most important dictionary, as it will contain all important info relating to every candidate,
-                    #such as their name, votes received, and percentage value
-
-totalvotes = []  #How many votes were cast entirely
-
-current_row = [] #For keeping track of which row we are currently on
-last_row = []
-
-votes_for_candidate = 0 #Setting variables to zero
-votes_per = 0
-
-current_candidate = "" #Empty string in order to add candidate name
-
-
-#create data file path 
-
-csvpath = os.path.join("PyPoll","Resources","election_data.csv")
-
-
-#Opening file using 'r', as we are only extracting info.
-
+# Opening file using 'r', as we are only extracting info.
 with open(csvpath, 'r', encoding='UTF-8') as csvfile:
     csvreader = csv.reader(csvfile, delimiter=",")
 
-    #Skipping header
+    # Skipping header
     csvheader = next(csvreader)
 
-    #Running for loop 
+    # Running for loop
     for row in csvreader:
-        totalvotes.append(row[0])
+        totalvotes += 1
         current_candidate = row[2]
-        #print(current_candidate)
 
+        # Update candidate_dict
         if current_candidate not in candidate_dict:
-            candidate_dict["Name"] = (current_candidate)  
-            candidate_dict["Total Votes"] = (votes_per)
-            #candidate_dict["Percentage of Votes"] = (((candidate_dict(str["Total Votes"]))/str(totalvotes))*100 + "%")
-            
-            #Resetting votes count for the next candidate on list
-            votes_per = 0
-    
-        elif current_candidate in candidate_dict:
-            votes_per += 1 
-            #Adding onto the vote count if the candidate is the same
-        
+            candidate_dict[current_candidate] = 1
+        else:
+            candidate_dict[current_candidate] += 1
 
-    #winner = max(candidate_dict["Total Votes"].values())
-    #Finding the winner based on the max value from the "Total Votes" key in the candidate dictionary
-    #print("The Winner is: " + str(winner))
+# Find the winner
+winner = max(candidate_dict, key=candidate_dict.get)
 
+# Calculate the percentage of votes each candidate won
+percentage_votes = {candidate: (votes / totalvotes) * 100 for candidate, votes in candidate_dict.items()}
 
-#Now to export our cleaned data to a new file.
+# Display results
+print(f"Total Votes Cast: {totalvotes}")
+print("List of Candidates:")
+for candidate in candidate_dict:
+    print(f"{candidate}: {candidate_dict[candidate]} votes ({percentage_votes[candidate]:.2f}%)")
+print(f"Winner: {winner} with {candidate_dict[winner]} votes ({percentage_votes[winner]:.2f}%)")
 
-poll_cleaned = os.path.join("PyPoll","Analysis","pollclean.csv")
+# Now to export our cleaned data to a new file.
+poll_cleaned = os.path.join("PyPoll", "Analysis", "pollclean.csv")
 
-#Open file with writing ability
+# Open file with writing ability
 with open(poll_cleaned, 'w', newline="") as pollfile:
     csvwriter = csv.writer(pollfile)
 
-    #Create header
-    csvwriter.writerow(["Total Votes Cast", "List of Candidates","Total Votes Per Candidate", "Percentage of Votes", "Winner"])
+    # Create header
+    csvwriter.writerow(["Total Votes Cast", "List of Candidates", "Total Votes Per Candidate", "Percentage of Votes", "Winner"])
 
-    #Filling in row values, using dictionary
-    csvwriter.writerows([str(totalvotes)], [str(candidate_dict["Name"])],[str(candidate_dict["Total Votes"])],[str(candidate_dict["Percentage of Votes"])], [str("winner")])
+    # Filling in row values, using dictionary
+    for candidate, votes in candidate_dict.items():
+        csvwriter.writerow([totalvotes, candidate, votes, round(percentage_votes[candidate],3), winner])
